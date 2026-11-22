@@ -12,6 +12,8 @@ ohm/ohmhelper/*.tmp
 ohm/ohmhelper/*.exe
 ohm/ohmhelper/*.pdb
 
-# stary projekt helpera (nieuzywany) i posrednie pliki grafik promo
+# stary projekt helpera (nieuzywany)
 ohm/helperproj/
-tools/promo/build/
+
+# lokalne narzedzia (generator grafik do README) - poza repozytorium
+tools/

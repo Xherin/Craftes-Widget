@@ -2,16 +2,16 @@
 
 [English](README.md) · **Polski**
 
-![Craftes Widget](docs/promo/hero.png)
+![Craftes Widget](docs/images/hero.png)
 
 Przezroczysty panel widgetów na pulpit Windows: temperatury i obciążenie podzespołów, RAM i VRAM, krypto i akcje, sterowanie muzyką, zadania, zegar i pogoda. Interfejs jest dostępny po angielsku i po polsku.
 
 | | |
 |---|---|
-| ![Podzespoły](docs/promo/feature-monitor.png) | ![Muzyka](docs/promo/feature-music.png) |
-| ![Krypto i akcje](docs/promo/feature-markets.png) | ![Zadania, zegar i pogoda](docs/promo/feature-todo.png) |
+| ![Podzespoły](docs/images/feature-monitor.png) | ![Muzyka](docs/images/feature-music.png) |
+| ![Krypto i akcje](docs/images/feature-markets.png) | ![Zadania, zegar i pogoda](docs/images/feature-todo.png) |
 
-![Przyklejony do krawędzi monitora](docs/promo/desktop.png)
+![Przyklejony do krawędzi monitora](docs/images/desktop.png)
 
 ## Pobranie
 
@@ -114,13 +114,3 @@ Jeśli sterownik się nie załaduje, widget zapisze powód w `ohm/ohmhelper/driv
 > Uwaga: Malwarebytes („Blocking vulnerable driver load”), Microsoft Defender (`HackTool:Win32/Winring0`)
 > i „Vulnerable Driver Blocklist” w Windows 11 mogą blokować WinRing0. Wtedy odczyt CPU nie zadziała nawet jako admin,
 > chyba że dodasz folder `ohm/ohmhelper` do wyjątków.
-
-## Grafiki do README
-
-Grafiki w `docs/promo` są generowane z prawdziwego widgetu z przykładowymi danymi (`tools/promo/`), zawsze po angielsku:
-
-```bash
-npx electron tools/promo/render.js
-```
-
-`docs/promo/social-preview.jpg` (1280×640) możesz ustawić jako podgląd repozytorium na GitHubie: **Settings → General → Social preview**.

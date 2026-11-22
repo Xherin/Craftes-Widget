@@ -2,16 +2,16 @@
 
 **English** · [Polski](README.pl.md)
 
-![Craftes Widget](docs/promo/hero.png)
+![Craftes Widget](docs/images/hero.png)
 
 A transparent widget panel for the Windows desktop: hardware temperatures and load, RAM and VRAM, crypto and stocks, music controls, tasks, clock and weather. The interface is available in English and Polish.
 
 | | |
 |---|---|
-| ![Hardware](docs/promo/feature-monitor.png) | ![Music](docs/promo/feature-music.png) |
-| ![Crypto and stocks](docs/promo/feature-markets.png) | ![Tasks, clock and weather](docs/promo/feature-todo.png) |
+| ![Hardware](docs/images/feature-monitor.png) | ![Music](docs/images/feature-music.png) |
+| ![Crypto and stocks](docs/images/feature-markets.png) | ![Tasks, clock and weather](docs/images/feature-todo.png) |
 
-![Snapped to the edge of the monitor](docs/promo/desktop.png)
+![Snapped to the edge of the monitor](docs/images/desktop.png)
 
 ## Download
 
@@ -119,13 +119,3 @@ If the driver fails to load, the widget writes the reason to `ohm/ohmhelper/driv
 > Note: Malwarebytes ("Blocking vulnerable driver load"), Microsoft Defender (`HackTool:Win32/Winring0`)
 > and the Windows 11 "Vulnerable Driver Blocklist" may block WinRing0. In that case the CPU reading will not work even as admin,
 > unless you add the `ohm/ohmhelper` folder to the exclusions.
-
-## README graphics
-
-The graphics in `docs/promo` are generated from the real widget with sample data (`tools/promo/`), always in English:
-
-```bash
-npx electron tools/promo/render.js
-```
-
-You can set `docs/promo/social-preview.jpg` (1280×640) as the repository preview on GitHub: **Settings → General → Social preview**.
