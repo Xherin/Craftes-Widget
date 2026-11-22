@@ -1,0 +1,17 @@
+# zaleznosci i paczki (gotowy ZIP trafia do GitHub Releases, nie do repo)
+node_modules/
+dist/
+
+# ustawienia i pliki tworzone w trakcie dzialania
+config.json
+ohm/ohmhelper/*.sys
+ohm/ohmhelper/*.log
+ohm/ohmhelper/*.tmp
+
+# helpery buduje ohm/build.cmd
+ohm/ohmhelper/*.exe
+ohm/ohmhelper/*.pdb
+
+# stary projekt helpera (nieuzywany) i posrednie pliki grafik promo
+ohm/helperproj/
+tools/promo/build/

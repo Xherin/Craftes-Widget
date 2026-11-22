@@ -1,0 +1,50 @@
+{
+  "name": "widget-dashboard",
+  "version": "0.25.0",
+  "description": "Transparent widget dashboard",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "dist": "electron-builder --win zip"
+  },
+  "devDependencies": {
+    "electron": "^45.3.3",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.craftes.widget",
+    "productName": "Craftes Widget",
+    "artifactName": "Craftes-Widget-${version}-win-x64.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "app.js",
+      "styles.css",
+      "package.json",
+      "assets/**",
+      "vendor/**",
+      "ohm/ohmhelper/**",
+      "!ohm/ohmhelper/*.sys",
+      "!ohm/ohmhelper/*.log"
+    ],
+    "electronLanguages": ["pl", "en-US"],
+    "asarUnpack": [
+      "ohm/**"
+    ],
+    "win": {
+      "icon": "assets/icon.png",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  }
+}

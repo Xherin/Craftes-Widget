@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <!-- Polityka bezpieczenstwa tresci: skrypty, style i fonty tylko z folderu aplikacji,
+       obrazki lokalne lub data: (okladki, ikona strzalki w liscie), polaczenia z okna tylko do API pogody.
+       Bez stylow i skryptow inline. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src https://geocoding-api.open-meteo.com https://api.open-meteo.com; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'">
+  <title>Craftes Widget</title>
+  <link rel="stylesheet" href="vendor/fonts/inter.css">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="vendor/chart.umd.min.js"></script>
+  <script defer src="vendor/Sortable.min.js"></script>
+</head>
+<body>
+  <div id="drag-bar">
+    <span class="brand">
+      <!-- znak aplikacji w kolorze motywu -->
+      <svg class="brand-mark" viewBox="0 0 16 16" aria-hidden="true">
+        <rect width="16" height="16" rx="3.6" class="bm-bg"/>
+        <rect x="3.3" y="3.4" width="9.4" height="2.2" rx="0.4" class="bm-bar"/>
+        <rect x="3.3" y="6.9" width="6.1" height="2.2" rx="0.4" class="bm-bar"/>
+        <rect x="3.3" y="10.4" width="9.4" height="2.2" rx="0.4" class="bm-bar"/>
+      </svg>Craftes
+    </span>
+    <div class="drag-actions">
+      <button id="themeBtn" class="icon-btn" title="Kolor motywu">
+        <svg viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7h2a4.6 4.6 0 0 0 4.6-4.6C21 6.8 17 3.5 12 3.5z"/><circle cx="7.5" cy="11.5" r="1.1"/><circle cx="10" cy="7.5" r="1.1"/><circle cx="14.5" cy="7.5" r="1.1"/></svg>
+      </button>
+      <button id="refreshBtn" class="icon-btn" title="Odśwież wszystko">
+        <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+      </button>
+      <button id="lockBtn" class="icon-btn" title="Zablokuj układ"></button>
+      <button id="addWidgetBtn" class="icon-btn" title="Dodaj widget">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button id="closeBtn" class="icon-btn" title="Schowaj do zasobnika">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="themePop" class="theme-pop hidden">
+    <div class="theme-pop-title">Kolor motywu</div>
+    <div id="themeSwatches" class="theme-swatches"></div>
+    <div class="theme-row">
+      <label class="theme-custom">
+        <input type="color" id="themeCustom" value="#5eead4">
+        <span>Własny kolor</span>
+      </label>
+    </div>
+    <div class="theme-alpha">
+      <div class="theme-alpha-head">
+        <span>Przezroczystość</span>
+        <span id="alphaValue" class="theme-alpha-value">38%</span>
+      </div>
+      <input type="range" id="alphaRange" class="theme-range" step="1" value="38" aria-label="Przezroczystość kart">
+    </div>
+    <div class="theme-foot">
+      <p class="theme-note">Kolory temperatur, RAM i zmian kursów zostają bez zmian.</p>
+      <button id="themeReset" class="theme-reset" title="Przywróć domyślny kolor i przezroczystość">Domyślne</button>
+    </div>
+  </div>
+
+  <div id="dashboard" class="widget-stack"></div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Dodaj widget</h2>
+      <p class="modal-sub">Wybierz, co ma się pojawić na panelu.</p>
+      <div class="widget-types">
+        <button class="widget-type-btn" data-type="crypto">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M10 8v8m0-8h3a2 2 0 0 1 0 4h-3m0 0h3.5a2 2 0 0 1 0 4H10"/></svg>Krypto
+        </button>
+        <button class="widget-type-btn" data-type="stock">
+          <svg viewBox="0 0 24 24"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg>Akcje
+        </button>
+        <button class="widget-type-btn" data-type="temps">
+          <svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v3M14 3v3M10 18v3M14 18v3M3 10h3M3 14h3M18 10h3M18 14h3"/></svg>CPU / GPU / RAM
+        </button>
+        <button class="widget-type-btn" data-type="music">
+          <svg viewBox="0 0 24 24"><path d="M9 17V6l10-2v11"/><circle cx="6.5" cy="17" r="2.5"/><circle cx="16.5" cy="15" r="2.5"/></svg>Muzyka
+        </button>
+        <button class="widget-type-btn" data-type="todo">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Zadania
+        </button>
+        <button class="widget-type-btn" data-type="note">
+          <svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 8.5h6M9 12h6M9 15.5h3.5"/></svg>Notatka
+        </button>
+        <button class="widget-type-btn" data-type="clock">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Zegar
+        </button>
+        <button class="widget-type-btn" data-type="weather">
+          <svg viewBox="0 0 24 24"><path d="M7.5 18.5a4 4 0 0 1-.4-7.98 5.5 5.5 0 0 1 10.6 1.5 3.25 3.25 0 0 1-.2 6.48z"/></svg>Pogoda
+        </button>
+        <button class="widget-type-btn" data-type="ai" disabled title="Ten widget jeszcze powstaje">
+          <svg viewBox="0 0 24 24"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z"/><path d="M18 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg>AI / Oferty<span class="soon">wkrótce</span>
+        </button>
+      </div>
+      <div id="widgetConfig" class="widget-config hidden"></div>
+      <div class="modal-actions">
+        <button id="cancelAdd" class="btn-ghost">Anuluj</button>
+        <button id="confirmAdd" class="btn-primary" disabled>Dodaj</button>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="app.js"></script>
+</body>
+</html>
