@@ -19,6 +19,10 @@ const ZOOM = 2;
 const WIDTH = 380;
 
 require(path.join(ROOT, 'main.js')); // handlery IPC (ceny, akcje) - jak w prawdziwym widgecie
+// grafiki zawsze po angielsku, niezaleznie od jezyka ustawionego w config.json
+const { ipcMain } = require('electron');
+ipcMain.removeAllListeners('get-lang');
+ipcMain.on('get-lang', (e) => { e.returnValue = 'en'; });
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -50,14 +54,14 @@ const DEMO_SETUP = `(async () => {
     { id: 't', type: 'temps' },
     { id: 'c', type: 'crypto', symbol: 'bitcoin', vs: 'usd', range: '24' },
     { id: 's', type: 'stock', symbol: 'AAPL', range: '1d' },
-    { id: 'd', type: 'todo', title: 'Zadania', items: [
-      { id: '1', text: 'Wrzucić widget na GitHuba', done: true },
-      { id: '2', text: 'Dopisać README i grafiki', done: true },
-      { id: '3', text: 'Nagrać krótki filmik z działania', done: false },
-      { id: '4', text: 'Wymienić pastę na CPU', done: false }
+    { id: 'd', type: 'todo', title: 'Tasks', items: [
+      { id: '1', text: 'Publish the widget on GitHub', done: true },
+      { id: '2', text: 'Write the README and graphics', done: true },
+      { id: '3', text: 'Record a short demo video', done: false },
+      { id: '4', text: 'Replace the CPU thermal paste', done: false }
     ] },
     { id: 'k', type: 'clock' },
-    { id: 'w', type: 'weather', city: 'Warszawa' }
+    { id: 'w', type: 'weather', city: 'London' }
   ];
   for (const w of list) { widgets.push(w); renderWidget(w); }
   saveWidgets();

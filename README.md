@@ -1,26 +1,28 @@
 # Craftes Widget v0.25
 
+**English** · [Polski](README.pl.md)
+
 ![Craftes Widget](docs/promo/hero.png)
 
-Przezroczysty panel widgetów na pulpit Windows: temperatury i obciążenie podzespołów, RAM i VRAM, krypto i akcje, sterowanie muzyką, zadania, zegar i pogoda.
+A transparent widget panel for the Windows desktop: hardware temperatures and load, RAM and VRAM, crypto and stocks, music controls, tasks, clock and weather. The interface is available in English and Polish.
 
 | | |
 |---|---|
-| ![Podzespoły](docs/promo/feature-monitor.png) | ![Muzyka](docs/promo/feature-music.png) |
-| ![Krypto i akcje](docs/promo/feature-markets.png) | ![Zadania, zegar i pogoda](docs/promo/feature-todo.png) |
+| ![Hardware](docs/promo/feature-monitor.png) | ![Music](docs/promo/feature-music.png) |
+| ![Crypto and stocks](docs/promo/feature-markets.png) | ![Tasks, clock and weather](docs/promo/feature-todo.png) |
 
-![Przyklejony do krawędzi monitora](docs/promo/desktop.png)
+![Snapped to the edge of the monitor](docs/promo/desktop.png)
 
-## Pobranie
+## Download
 
-1. Z zakładki **Releases** pobierz `Craftes-Widget-<wersja>-win-x64.zip`.
-2. Rozpakuj go w dowolnym folderze, np. `C:\Programy\Craftes Widget`.
-3. Uruchom `Craftes Widget.exe`.
+1. Download `Craftes-Widget-<version>-win-x64.zip` from **Releases**.
+2. Unzip it into any folder, for example `C:\Apps\Craftes Widget`.
+3. Run `Craftes Widget.exe`.
 
-Ustawienia okna i sterownik czujników zostają w tym folderze. Żeby usunąć widget, wystarczy skasować folder.
-Wymagany jest Windows 10 lub 11 x64. Pliki nie są podpisane cyfrowo, więc przy pierwszym uruchomieniu Windows SmartScreen może pokazać ostrzeżenie: wybierz „Więcej informacji” → „Uruchom mimo to”.
+The window settings and the sensor driver stay in that folder. To remove the widget, delete the folder.
+Requires Windows 10 or 11 x64. The files are not digitally signed, so Windows SmartScreen may show a warning on the first run: choose "More info" → "Run anyway".
 
-## Uruchomienie ze źródeł
+## Run from source
 
 ```bash
 npm install
@@ -28,97 +30,102 @@ ohm\build.cmd
 npm start
 ```
 
-Paczkę ZIP do wydania buduje `npm run dist` (wynik w `dist/`).
+`npm run dist` builds the release ZIP (output in `dist/`).
 
-`start.vbs` uruchamia widget bez okna konsoli, a `start-admin.vbs` robi to samo jako administrator.
-Widget działa w jednej kopii: ponowne uruchomienie pokazuje już otwarte okno.
+`start.vbs` starts the widget without a console window, and `start-admin.vbs` does the same as administrator.
+Only one copy of the widget runs at a time: starting it again shows the window that is already open.
 
-## Okno i zasobnik
+## Window and tray
 
-* Okno jest przyklejone do prawej krawędzi drugiego monitora. Zajmuje całą wysokość obszaru roboczego (bez paska zadań) i ma 380 px szerokości. Po zmianie monitorów lub rozdzielczości przykleja się ponownie.
-* `×` chowa widget do zasobnika. Kliknięcie ikony w zasobniku pokazuje go albo chowa.
-* Menu zasobnika (prawy przycisk):
-  * pokaż / schowaj,
-  * **Przyklej do prawej krawędzi**; po wyłączeniu okno można przesuwać i zmieniać jego rozmiar,
-  * **Zawsze na wierzchu**,
-  * **Uruchamiaj z Windows**,
-  * **Odśwież wszystko**,
-  * **Zamknij**.
-* Ustawienia okna są zapisywane w `config.json` w folderze projektu.
-* **Kolor motywu i przezroczystość:** ikona palety w pasku otwiera wybór jednego z 10 gotowych kolorów albo dowolnego własnego oraz suwak przezroczystości kart. Z tego jednego koloru liczone są wszystkie odcienie: przyciski, zaznaczenia, wykresy, poświata paska muzyki i znak aplikacji. Przy bardzo ciemnych kolorach (np. Purpura `#6a1a87`) tekst, ikony i linie dostają rozjaśniony wariant tego samego odcienia, żeby były czytelne. Kolory znaczeniowe zostają stałe: zielony, żółty i czerwony dla temperatur i RAM oraz zielony i czerwony dla zmian kursów. Przycisk **Domyślne** przywraca turkus i przezroczystość 38%.
+* The window is snapped to the right edge of the second monitor. It takes the full height of the work area (without the taskbar) and is 380 px wide. It snaps again after a monitor or resolution change.
+* `×` hides the widget to the tray. Clicking the tray icon shows or hides it.
+* Tray menu (right click):
+  * show / hide,
+  * **Snap to the right edge**; when it is off, you can move and resize the window,
+  * **Always on top**,
+  * **Start with Windows**,
+  * **Refresh all**,
+  * **Quit**.
+* Window settings and the language are saved in `config.json` (next to `Craftes Widget.exe`, or in the project folder when run from source).
+* **Appearance and language:** the palette icon in the bar opens a panel with:
+  * 10 preset theme colors or any custom color,
+  * a card transparency slider,
+  * the language switch (**English** / **Polski**); the window reloads in the new language.
 
-## Widgety
+  Every shade (buttons, selections, charts, the music bar glow and the app mark) is derived from that one color. For very dark colors (e.g. Purple `#6a1a87`), text, icons and lines get a lighter variant of the same hue so they stay readable. Status colors stay fixed: green, yellow and red for temperatures and RAM, green and red for price changes. **Default** restores teal and 38% transparency.
 
-| Widget | Źródło danych |
+## Widgets
+
+| Widget | Data source |
 |---|---|
-| Krypto | Binance, a gdy nie działa CoinGecko |
-| Akcje | Yahoo Finance, bez klucza. Symbole: `AAPL`, `MSFT`, GPW z końcówką `.WA` (np. `PKN.WA`) |
-| CPU / GPU / RAM | `ohmhelper.exe`: temperatury, obciążenie, VRAM, RAM i proces, który najbardziej obciąża CPU, GPU i RAM |
-| Muzyka | `mediahelper.exe` (Windows Media Session): Spotify, YouTube w przeglądarce i inne. Działa tylko wtedy, gdy widget jest na pulpicie |
-| Zadania | lista z odhaczaniem. Podwójne kliknięcie edytuje zadanie |
-| Pogoda / Zegar / Notatka | Open-Meteo / lokalnie |
+| Crypto | Binance, with CoinGecko as a fallback |
+| Stocks | Yahoo Finance, no key. Symbols: `AAPL`, `MSFT`, other exchanges with a suffix (e.g. `SAP.DE`, `PKN.WA`) |
+| CPU / GPU / RAM | `ohmhelper.exe`: temperatures, load, VRAM, RAM and the process using the most CPU, GPU and RAM |
+| Music | `mediahelper.exe` (Windows Media Session): Spotify, YouTube in the browser and others. Runs only while the widget is on the panel |
+| Tasks | checklist; double-click a task to edit it |
+| Weather / Clock / Note | Open-Meteo / local |
 
-Biblioteki (Chart.js, Sortable) i font Inter leżą w `vendor/`, więc interfejs nie pobiera niczego z internetu.
+The libraries (Chart.js, Sortable) and the Inter font are in `vendor/`, so the interface downloads nothing from the internet.
 
-## Temperatury (OpenHardwareMonitorLib + WinRing0)
+## Temperatures (OpenHardwareMonitorLib + WinRing0)
 
-Wszystko leży w folderze `ohm/`. Nic nie jest pobierane ani nic nie trafia do AppData ani %TEMP%.
+Everything lives in the `ohm/` folder. Nothing is downloaded and nothing is written to AppData or %TEMP%.
 
-| Plik | Rola |
+| File | Role |
 |---|---|
-| `ohm/src/Program.cs`, `ProcStats.cs` | źródło helpera sensorów (RAM i procesy przez `NtQuerySystemInformation`, GPU per proces przez licznik „GPU Engine”) |
-| `ohm/src/MediaHelper.cs` | źródło helpera muzyki |
-| `ohm/build.cmd` | kompilacja obu helperów przez `csc.exe` z Windows (.NET Framework 4.x) i systemowe pliki `.winmd`, bez dotnet SDK, Windows SDK, NuGet i internetu |
-| `ohm/ohmhelper/ohmhelper.exe` | helper, który działa cały czas i co 2 s podaje odczyt w JSON |
-| `ohm/ohmhelper/OpenHardwareMonitorLib.dll` (+ zależności) | biblioteka; sterownik WinRing0x64 jest w niej osadzony |
-| `ohm/ohmhelper/ohmhelper.sys` | sterownik WinRing0 wypakowany przez bibliotekę; jest tylko wtedy, gdy helper działa jako admin, a przy zamknięciu biblioteka go usuwa |
+| `ohm/src/Program.cs`, `ProcStats.cs` | sensor helper source (RAM and processes via `NtQuerySystemInformation`, per-process GPU via the "GPU Engine" counter) |
+| `ohm/src/MediaHelper.cs` | music helper source |
+| `ohm/build.cmd` | builds both helpers with the `csc.exe` that ships with Windows (.NET Framework 4.x) and the system `.winmd` files; no dotnet SDK, Windows SDK, NuGet or internet needed |
+| `ohm/ohmhelper/ohmhelper.exe` | helper that runs all the time and reports a JSON reading every 2 s |
+| `ohm/ohmhelper/OpenHardwareMonitorLib.dll` (+ dependencies) | the library; the WinRing0x64 driver is embedded in it |
+| `ohm/ohmhelper/ohmhelper.sys` | the WinRing0 driver unpacked by the library; it exists only while the helper runs as admin, and the library removes it on exit |
 
-* **Bez admina:** temperatura i obciążenie GPU (NvAPI/ADL) oraz obciążenie CPU.
-* **Temperatura CPU** wymaga sterownika WinRing0, więc potrzebne są uprawnienia administratora. Masz dwie opcje:
-  * w widgecie kliknąć **„Odczyt CPU (admin)”**: helper startuje przez UAC, przesyła odczyty nazwanym potokiem i sam się zamyka razem z widgetem (opcja „zawsze przy starcie” robi to automatycznie),
-  * albo uruchomić cały widget przez `start-admin.vbs`.
+* **Without admin:** GPU temperature and load (NvAPI/ADL) and CPU load.
+* **CPU temperature** needs the WinRing0 driver, so it requires administrator rights. You have two options:
+  * click **"Read CPU (admin)"** in the widget: the helper starts through UAC, sends readings over a named pipe and closes together with the widget (the "always at startup" option does this automatically),
+  * or start the whole widget with `start-admin.vbs`.
 
-Diagnostyka (pełna lista sensorów):
+Diagnostics (full sensor list):
 
 ```bat
 ohm\ohmhelper\ohmhelper.exe --report
 ```
 
-Po zmianie plików w `ohm/src` uruchom `ohm\build.cmd`.
+After changing files in `ohm/src`, run `ohm\build.cmd`.
 
-### Dlaczego nic nie trafia do AppData
+### Why nothing goes to AppData
 
-* `Computer.Open(true)` to tryb „portable”: WinRing0 trafia do `ohm/ohmhelper/ohmhelper.sys`. Przy `Open(false)` biblioteka zawsze używa `%TEMP%\tmpXXXX.sys`.
-* `TMP` i `TEMP` procesu helpera wskazują na `ohm/ohmhelper/tmp`, który jest czyszczony przy starcie i przy wyjściu (o ile nie jest junction ani dowiązaniem).
-* InpOut (`inpoutx64`) jest zablokowany. Biblioteka używa go tylko do tabeli mocy Ryzena, ale zawsze wypakowuje go do `%TEMP%` i instaluje sterownik w `System32\drivers`.
+* `Computer.Open(true)` is the "portable" mode: WinRing0 goes to `ohm/ohmhelper/ohmhelper.sys`. With `Open(false)` the library always uses `%TEMP%\tmpXXXX.sys`.
+* The helper's `TMP` and `TEMP` point to `ohm/ohmhelper/tmp`, which is cleaned at startup and on exit (unless it is a junction or a link).
+* InpOut (`inpoutx64`) is blocked. The library only uses it for the Ryzen power table, but it always unpacks it to `%TEMP%` and installs a driver in `System32\drivers`.
 
-Jeśli sterownik się nie załaduje, widget zapisze powód w `ohm/ohmhelper/driver.log`.
+If the driver fails to load, the widget writes the reason to `ohm/ohmhelper/driver.log`.
 
-### Bezpieczeństwo
+### Security
 
-* **Helper administratora nie zapisuje plików z danymi.** Odczyty przesyła nazwanym potokiem o losowej nazwie, który tworzy widget. Łączy się z poziomem *Identification*, więc serwer potoku nie może użyć jego uprawnień. Kończy pracę, gdy widget zamknie potok.
-* **Proces administratora ostrożnie obchodzi się z plikami w folderze projektu**, który jest zapisywalny dla zwykłego konta:
-  * przed wypakowaniem sterownika usuwa nazwę `ohmhelper.sys`, gdyby była podstawionym dowiązaniem,
-  * test zapisu tworzy nowy, losowy plik,
-  * folderu `tmp` nie czyści, jeśli jest junction lub dowiązaniem.
-* **Urządzenie WinRing0 jest dostępne tylko dla administratora.** Zwykły program nie może go użyć, nawet gdy helper działa.
-* **Okno widgetu nie wyświetla obcej treści:**
-  * polityka CSP dopuszcza tylko skrypty, style i fonty z folderu aplikacji,
-  * nawigacja, nowe okna, `webview` i prośby o uprawnienia (kamera, mikrofon, lokalizacja) są zablokowane,
-  * tekst z internetu (tytuły utworów, nazwy firm i procesów) jest wstawiany jako zwykły tekst.
-* **Sieć:** tylko HTTPS do Binance, CoinGecko, Yahoo Finance i Open-Meteo. Wysyłane są wyłącznie symbole kursów i nazwa miasta. Nic nie nasłuchuje na porcie, a helpery nie łączą się z siecią.
-* **InpOut jest zablokowany.** Stare wersje widgetu instalowały sterownik `inpoutx64` (dostępny dla każdego programu), więc jeśli masz go w systemie, warto go usunąć.
+* **The admin helper writes no data files.** It sends readings over a named pipe with a random name created by the widget. It connects at the *Identification* level, so the pipe server cannot use its rights. It exits when the widget closes the pipe.
+* **The admin process handles files in the app folder carefully**, because that folder is writable by a normal account:
+  * before unpacking the driver it removes the name `ohmhelper.sys`, in case it is a planted link,
+  * the write test creates a new, random file,
+  * it does not clean the `tmp` folder if it is a junction or a link.
+* **The WinRing0 device is available to administrators only.** A normal program cannot use it, even while the helper is running.
+* **The widget window shows no foreign content:**
+  * the CSP allows only scripts, styles and fonts from the app folder,
+  * navigation, new windows, `webview` and permission requests (camera, microphone, location) are blocked,
+  * text from the internet (song titles, company and process names) is inserted as plain text.
+* **Network:** HTTPS only, to Binance, CoinGecko, Yahoo Finance and Open-Meteo. Only price symbols and the city name are sent. Nothing listens on a port, and the helpers do not connect to the network.
+* **InpOut is blocked.** Older versions of the widget installed the `inpoutx64` driver (open to every program), so if you have it on your system, consider removing it.
 
-> Uwaga: Malwarebytes („Blocking vulnerable driver load”), Microsoft Defender (`HackTool:Win32/Winring0`)
-> i „Vulnerable Driver Blocklist” w Windows 11 mogą blokować WinRing0. Wtedy odczyt CPU nie zadziała nawet jako admin,
-> chyba że dodasz folder `ohm/ohmhelper` do wyjątków.
+> Note: Malwarebytes ("Blocking vulnerable driver load"), Microsoft Defender (`HackTool:Win32/Winring0`)
+> and the Windows 11 "Vulnerable Driver Blocklist" may block WinRing0. In that case the CPU reading will not work even as admin,
+> unless you add the `ohm/ohmhelper` folder to the exclusions.
 
-## Grafiki do README
+## README graphics
 
-Grafiki w `docs/promo` są generowane z prawdziwego widgetu z przykładowymi danymi (`tools/promo/`):
+The graphics in `docs/promo` are generated from the real widget with sample data (`tools/promo/`), always in English:
 
 ```bash
 npx electron tools/promo/render.js
 ```
 
-`docs/promo/social-preview.jpg` (1280×640) możesz ustawić jako podgląd repozytorium na GitHubie: **Settings → General → Social preview**.
+You can set `docs/promo/social-preview.jpg` (1280×640) as the repository preview on GitHub: **Settings → General → Social preview**.

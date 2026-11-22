@@ -35,6 +35,45 @@ function saveConfig() {
   fsp.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2)).catch(() => {});
 }
 
+// ---- jezyk (en domyslnie, pl) - teksty procesu glownego; okno ma wlasne (i18n.js) ----
+const MAIN_TEXT = {
+  en: {
+    hide: 'Hide widget', show: 'Show widget', snap: 'Snap to the right edge', onTop: 'Always on top',
+    autostart: 'Start with Windows', refresh: 'Refresh all', quit: 'Quit',
+    noData: 'no data', notFound: 'not found',
+    noHelper: 'Missing ohm/ohmhelper/{exe} - run ohm/build.cmd',
+    helperExit: 'helper stopped (code {code}), restarting in {s} s',
+    adminLost: 'The admin helper stopped responding',
+    uacCancelled: 'UAC cancelled', code: 'code {code}', pipe: 'pipe: {msg}',
+    adminTimeout: 'the admin helper did not respond within 90 s'
+  },
+  pl: {
+    hide: 'Schowaj widget', show: 'Pokaż widget', snap: 'Przyklej do prawej krawędzi', onTop: 'Zawsze na wierzchu',
+    autostart: 'Uruchamiaj z Windows', refresh: 'Odśwież wszystko', quit: 'Zamknij',
+    noData: 'brak danych', notFound: 'nie znaleziono',
+    noHelper: 'Brak ohm/ohmhelper/{exe} - uruchom ohm/build.cmd',
+    helperExit: 'helper zakończył pracę (kod {code}), restart za {s} s',
+    adminLost: 'Helper (admin) przestał odpowiadać',
+    uacCancelled: 'Anulowano UAC', code: 'kod {code}', pipe: 'potok: {msg}',
+    adminTimeout: 'helper administratora nie odpowiedział w ciągu 90 s'
+  }
+};
+const lang = () => (MAIN_TEXT[config.lang] ? config.lang : 'en');
+function mt(key, vars) {
+  const s = MAIN_TEXT[lang()][key] || MAIN_TEXT.en[key] || key;
+  return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : m)) : s;
+}
+
+// okno pyta o jezyk przy starcie (synchronicznie - teksty potrzebne przed pierwszym rysowaniem)
+ipcMain.on('get-lang', (e) => { e.returnValue = lang(); });
+ipcMain.on('set-lang', (e, l) => {
+  if (!MAIN_TEXT[l] || l === lang()) return;
+  config.lang = l;
+  saveConfig();
+  updateTrayMenu();
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.reload();
+});
+
 // Monitor docelowy: drugi monitor (nie-glowny; przy kilku - najbardziej z prawej), inaczej glowny.
 function targetDisplay() {
   const primary = screen.getPrimaryDisplay();
@@ -132,7 +171,7 @@ function setAutostart(on) {
 function createTray() {
   const img = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png')); // + tray@2x.png
   tray = new Tray(img);
-  tray.setToolTip('Widget Dashboard');
+  tray.setToolTip('Craftes Widget');
   tray.on('click', toggleWindow);
   updateTrayMenu();
 }
@@ -141,29 +180,29 @@ function updateTrayMenu() {
   if (!tray) return;
   const visible = !!(mainWindow && mainWindow.isVisible());
   tray.setContextMenu(Menu.buildFromTemplate([
-    { label: visible ? 'Schowaj widget' : 'Pokaż widget', click: toggleWindow },
+    { label: visible ? mt('hide') : mt('show'), click: toggleWindow },
     { type: 'separator' },
     {
-      label: 'Przyklej do prawej krawędzi', type: 'checkbox', checked: config.snap,
+      label: mt('snap'), type: 'checkbox', checked: config.snap,
       click: (item) => { config.snap = item.checked; saveConfig(); applySnap(); }
     },
     {
-      label: 'Zawsze na wierzchu', type: 'checkbox', checked: config.alwaysOnTop,
+      label: mt('onTop'), type: 'checkbox', checked: config.alwaysOnTop,
       click: (item) => {
         config.alwaysOnTop = item.checked; saveConfig();
         if (mainWindow) mainWindow.setAlwaysOnTop(item.checked);
       }
     },
     {
-      label: 'Uruchamiaj z Windows', type: 'checkbox', checked: getAutostart(),
+      label: mt('autostart'), type: 'checkbox', checked: getAutostart(),
       click: (item) => setAutostart(item.checked)
     },
     { type: 'separator' },
     {
-      label: 'Odśwież wszystko',
+      label: mt('refresh'),
       click: () => { if (mainWindow) mainWindow.webContents.send('refresh-all'); }
     },
-    { label: 'Zamknij', click: () => { quitting = true; app.quit(); } }
+    { label: mt('quit'), click: () => { quitting = true; app.quit(); } }
   ]));
 }
 
@@ -219,7 +258,7 @@ ipcMain.handle('crypto-price', async (e, { symbol, vs }) => {
   }
   const data = await fetchJson(`https://api.coingecko.com/api/v3/simple/price?ids=${enc(symbol)}&vs_currencies=${enc(vs)}&include_24hr_change=true`);
   const c = data[symbol];
-  if (!c || c[vs] == null) throw new Error('brak danych');
+  if (!c || c[vs] == null) throw new Error(mt('noData'));
   return { price: c[vs], change: c[`${vs}_24h_change`] };
 });
 
@@ -264,10 +303,10 @@ ipcMain.handle('stock-data', async (e, { symbol, range }) => {
   const r = STOCK_RANGES[range] || STOCK_RANGES['1d'];
   const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${enc(symbol.toUpperCase())}?range=${r.range}&interval=${r.interval}`);
   const res = data && data.chart && data.chart.result && data.chart.result[0];
-  if (!res) throw new Error((data && data.chart && data.chart.error && data.chart.error.description) || 'nie znaleziono');
+  if (!res) throw new Error((data && data.chart && data.chart.error && data.chart.error.description) || mt('notFound'));
   const m = res.meta || {};
   const price = m.regularMarketPrice;
-  if (price == null) throw new Error('brak danych');
+  if (price == null) throw new Error(mt('noData'));
   const prev = m.previousClose ?? (range === '1d' ? m.chartPreviousClose : null);
   const change = m.regularMarketChangePercent ?? (prev ? (price - prev) / prev * 100 : null);
   const closes = (res.indicators && res.indicators.quote && res.indicators.quote[0] && res.indicators.quote[0].close) || [];
@@ -356,7 +395,7 @@ function setError(msg) {
 
 function startPipeHelper() {
   if (sensors.child || sensors.quitting) return;
-  if (!fs.existsSync(HELPER_EXE)) return setError('Brak ohm/ohmhelper/ohmhelper.exe - uruchom ohm/build.cmd');
+  if (!fs.existsSync(HELPER_EXE)) return setError(mt('noHelper', { exe: 'ohmhelper.exe' }));
 
   sensors.mode = 'pipe';
   const child = spawn(HELPER_EXE, ['--loop', String(SENSOR_INTERVAL)], {
@@ -388,7 +427,7 @@ function startPipeHelper() {
     const delay = Math.min(30000, 2000 * Math.pow(2, sensors.restarts++));
     clearTimeout(sensors.restartTimer);
     sensors.restartTimer = setTimeout(startPipeHelper, delay);
-    setError(`helper zakonczyl prace (kod ${code}), restart za ${Math.round(delay / 1000)} s`);
+    setError(mt('helperExit', { code, s: Math.round(delay / 1000) }));
   });
 }
 
@@ -462,7 +501,7 @@ function onElevConnection(sock) {
     sensors.mode = 'pipe';
     sensors.last = null; // bez "zawieszonych" odczytow admina do czasu pierwszego odczytu bez admina
     sensors.lastAt = 0;
-    setError('Helper (admin) przestal odpowiadac');
+    setError(mt('adminLost'));
     startPipeHelper();
   });
 }
@@ -484,7 +523,7 @@ function runElevated() {
     p.on('error', e => resolve({ ok: false, error: e.message }));
     p.on('exit', code => {
       if (code === 0) return resolve({ ok: true });
-      resolve({ ok: false, error: /cancel|anulowa/i.test(err) ? 'Anulowano UAC' : (err.trim().split('\n')[0] || `kod ${code}`) });
+      resolve({ ok: false, error: /cancel|anulowa/i.test(err) ? mt('uacCancelled') : (err.trim().split('\n')[0] || mt('code', { code })) });
     });
   });
 }
@@ -503,8 +542,8 @@ function startElevatedHelper() {
 
 async function startElevatedHelperOnce() {
   if (sensors.mode === 'elevated') return { ok: true };
-  if (!fs.existsSync(HELPER_EXE)) return { ok: false, error: 'Brak ohmhelper.exe' };
-  try { await ensureElevPipe(); } catch (e) { return { ok: false, error: 'potok: ' + e.message }; }
+  if (!fs.existsSync(HELPER_EXE)) return { ok: false, error: mt('noHelper', { exe: 'ohmhelper.exe' }) };
+  try { await ensureElevPipe(); } catch (e) { return { ok: false, error: mt('pipe', { msg: e.message }) }; }
 
   // helper z wczesniejszej proby jest juz polaczony - tylko czekamy na jego odczyt (bez UAC)
   if (!elev.sock) {
@@ -518,7 +557,7 @@ async function startElevatedHelperOnce() {
     await new Promise(res => setTimeout(res, 500));
     if (sensors.mode === 'elevated') return { ok: true };
   }
-  return { ok: false, error: 'helper administratora nie odpowiedział w ciągu 90 s' };
+  return { ok: false, error: mt('adminTimeout') };
 }
 
 ipcMain.handle('get-temps', () => snapshot());
@@ -537,7 +576,7 @@ function publishMedia() {
 function startMediaHelper() {
   if (media.child || !media.wanted || quitting) return;
   if (!fs.existsSync(MEDIA_EXE)) {
-    media.state = { has: false, error: 'Brak ohm/ohmhelper/mediahelper.exe - uruchom ohm/build.cmd' };
+    media.state = { has: false, error: mt('noHelper', { exe: 'mediahelper.exe' }) };
     return publishMedia();
   }
   const child = spawn(MEDIA_EXE, [], { cwd: HELPER_DIR, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });

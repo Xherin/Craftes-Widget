@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Craftes Widget - promo</title>
@@ -168,10 +168,10 @@
       <div class="layout hero">
         <div class="text">
           ${brand}
-          <div class="eyebrow">Widgety na pulpit · Windows 10 / 11</div>
-          <h1>Wszystko, co ważne,<br>na krawędzi ekranu</h1>
-          <p class="lead">Przezroczysty panel widgetów: temperatury i obciążenie podzespołów, krypto i akcje, muzyka, zadania, zegar i pogoda — w jednym lekkim oknie.</p>
-          ${points(['CPU, GPU, RAM i VRAM', 'Krypto i akcje z wykresami', 'Sterowanie muzyką', 'Lista zadań i notatki', 'Zegar i pogoda', 'Ikona w zasobniku'], true)}
+          <div class="eyebrow">Desktop widgets · Windows 10 / 11</div>
+          <h1>All that matters,<br>on the screen edge</h1>
+          <p class="lead">A transparent widget panel: hardware temperatures and load, crypto and stocks, music, tasks, clock and weather — in one lightweight window.</p>
+          ${points(['CPU, GPU, RAM and VRAM', 'Crypto and stocks with charts', 'Music controls', 'Tasks and notes', 'Clock and weather', 'English and Polish'], true)}
         </div>
         <div class="visual">
           <div class="glow"></div>
@@ -185,10 +185,10 @@
         <div class="wall"></div>
         <div class="caption">
           ${brand}
-          <div class="eyebrow">Zawsze pod ręką</div>
-          <h2>Przyklejony do prawej<br>krawędzi monitora</h2>
-          <p class="lead">Zajmuje całą wysokość drugiego monitora, nie zasłania paska zadań i zawsze jest na wierzchu.</p>
-          ${points(['Chowa się do zasobnika jednym kliknięciem', 'Opcjonalne uruchamianie z Windows', 'Karty ułożysz po swojemu, przeciągając je'])}
+          <div class="eyebrow">Always within reach</div>
+          <h2>Snapped to the right<br>edge of your monitor</h2>
+          <p class="lead">Takes the full height of your second monitor, never covers the taskbar and stays on top.</p>
+          ${points(['Hides to the tray with one click', 'Optional start with Windows', 'Drag the cards into any order'])}
         </div>
         <div class="arrow"></div>
         <div class="widget-dock"><img src="${B}widget-full.png"></div>
@@ -196,29 +196,29 @@
           <i></i><i></i><i></i><i></i><i></i>
           <div class="tray">
             <span>⌃</span><img src="../../assets/icon.png"><span>🔊</span>
-            <div class="clock">21:37<br>20.11.2026</div>
+            <div class="clock">9:37 PM<br>11/20/2026</div>
           </div>
         </div>
       </div>`,
 
-    monitor: () => feature('Podzespoły', 'Temperatury, RAM i VRAM<br>na żywo',
-      'Odczyt prosto z czujników przez OpenHardwareMonitorLib — bez instalowania dodatkowych programów.',
-      ['Temperatura i obciążenie CPU oraz GPU', 'Zajętość RAM i pamięci karty graficznej', 'Proces, który najbardziej obciąża CPU, GPU i RAM', 'Lekki helper: ok. 0,3% jednego rdzenia'],
+    monitor: () => feature('Hardware', 'Live temperatures,<br>RAM and VRAM',
+      'Read straight from the sensors with OpenHardwareMonitorLib — no extra software to install.',
+      ['CPU and GPU temperature and load', 'RAM and graphics memory usage', 'The process using the most CPU, GPU and RAM', 'Lightweight helper: about 0.3% of one core'],
       `<img class="shot" src="${B}temps.png" style="width:430px">`),
 
-    music: () => feature('Muzyka', 'Sterowanie muzyką<br>jak w telefonie',
-      'Widget pokazuje to, co gra w systemie — Spotify, YouTube w przeglądarce i inne odtwarzacze.',
-      ['Okładka, tytuł i wykonawca', 'Świecący pasek postępu w stylu One UI', 'Poprzedni, pauza i następny jednym kliknięciem', 'Przez Windows Media Session — bez logowania'],
+    music: () => feature('Music', 'Music controls<br>like on your phone',
+      'Shows whatever is playing on your PC — Spotify, YouTube in the browser and other players.',
+      ['Cover art, title and artist', 'Glowing progress bar in the One UI style', 'Previous, pause and next in one click', 'Through Windows Media Session — no sign-in'],
       `<img class="shot" src="${B}music.png" style="width:440px">`),
 
-    markets: () => feature('Krypto i akcje', 'Kursy i wykresy<br>zawsze pod ręką',
-      'Bitcoin, Ethereum i inne kryptowaluty oraz akcje z giełd na całym świecie — także z GPW.',
-      ['Wykresy 1h–24h dla krypto, 1D–1R dla akcji', 'Najedź na wykres: cena i zmiana w danym momencie', 'Dane z Binance, CoinGecko i Yahoo Finance', 'Bez kluczy API i bez zakładania konta'],
+    markets: () => feature('Crypto and stocks', 'Prices and charts<br>always in view',
+      'Bitcoin, Ethereum and other coins, plus stocks from exchanges around the world.',
+      ['Charts from 1h to 24h for crypto, 1D to 1Y for stocks', 'Hover the chart: price and change at that moment', 'Data from Binance, CoinGecko and Yahoo Finance', 'No API keys and no account needed'],
       `<img class="shot" src="${B}markets.png" style="width:400px">`),
 
-    todo: () => feature('Organizacja', 'Zadania, zegar<br>i pogoda',
-      'Drobne rzeczy, które warto mieć cały czas na widoku.',
-      ['Lista zadań z odhaczaniem i edycją', 'Notatki edytowane w miejscu', 'Zegar i aktualna pogoda dla wybranego miasta', 'Blokada układu jedną kłódką'],
+    todo: () => feature('Organization', 'Tasks, clock<br>and weather',
+      'The small things worth keeping in sight all day.',
+      ['Task list with check-off and editing', 'Notes you edit in place', 'Clock and current weather for any city', 'Lock the layout with one click'],
       `<div class="stack"><img class="shot" src="${B}todo.png" style="width:400px"><img class="shot" src="${B}misc.png" style="width:400px"></div>`)
   };
 

@@ -2,6 +2,7 @@
 const { ipcRenderer } = require('electron');
 
 const STORAGE_KEY = 'widget-dashboard-v11';
+const HOUR = I18N.lang === 'pl' ? '2-digit' : 'numeric'; // 17:05 / 5:05 PM
 const AUTO_ELEVATE_KEY = 'widget-sensors-autoelevate';
 const PRICE_REFRESH_MS = 60 * 1000; // kursy i wykresy co minute (main i tak cache'uje zapytania 20 s)
 
@@ -26,6 +27,7 @@ const typeButtons = document.querySelectorAll('.widget-type-btn');
 // ---------- start ----------
 
 function init() {
+  I18N.applyStatic(document);
   applyTheme(loadTheme()); // kolor motywu przed narysowaniem kart (bez mrugniecia domyslnym)
   applyAlpha(loadAlpha());
   loadWidgets();
@@ -71,7 +73,7 @@ function getDefaultWidgets() {
     { id: uid(), type: 'crypto', symbol: 'ethereum', vs: 'usd', range: '24' },
     { id: uid(), type: 'temps' },
     { id: uid(), type: 'clock' },
-    { id: uid(), type: 'note', title: 'Notatka', content: 'Kliknij aby edytować...' }
+    { id: uid(), type: 'note', title: t('def.noteTitle'), content: t('def.noteContent') }
   ];
 }
 
@@ -108,7 +110,7 @@ const UI_ICONS = {
 
 function renderLockBtn() {
   lockBtn.innerHTML = isLocked ? UI_ICONS.lock : UI_ICONS.unlock;
-  lockBtn.title = isLocked ? 'Odblokuj układ' : 'Zablokuj układ';
+  lockBtn.title = isLocked ? t('bar.unlock') : t('bar.lock');
   lockBtn.classList.toggle('locked', isLocked);
 }
 
@@ -161,48 +163,39 @@ function selectType(type) {
   confirmAdd.disabled = false;
 }
 
+// formularze budowane przy otwarciu (teksty w biezacym jezyku)
+const rangeOptions = (pairs, sel) => pairs.map(([v, label]) => `<option value="${v}"${v === sel ? ' selected' : ''}>${label}</option>`).join('');
 const CONFIG_FORMS = {
-  crypto: `
-      <label>Symbol (bitcoin, ethereum, solana...)</label>
+  crypto: () => `
+      <label>${t('cfg.cryptoSymbol')}</label>
       <input type="text" id="cfgSymbol" value="bitcoin">
-      <label>Waluta</label>
+      <label>${t('cfg.currency')}</label>
       <input type="text" id="cfgVs" value="usd">
-      <label>Zakres wykresu</label>
-      <select id="cfgRange">
-        <option value="1">1h</option>
-        <option value="4">4h</option>
-        <option value="12">12h</option>
-        <option value="24" selected>24h</option>
-      </select>
+      <label>${t('cfg.range')}</label>
+      <select id="cfgRange">${rangeOptions([['1', '1h'], ['4', '4h'], ['12', '12h'], ['24', '24h']], '24')}</select>
     `,
-  note: `
-      <label>Tytuł</label>
-      <input type="text" id="cfgTitle" value="Notatka">
-      <label>Treść</label>
-      <textarea id="cfgContent" rows="3">Kliknij aby edytować...</textarea>
+  note: () => `
+      <label>${t('cfg.title')}</label>
+      <input type="text" id="cfgTitle" value="${escapeHtml(t('def.noteTitle'))}">
+      <label>${t('cfg.content')}</label>
+      <textarea id="cfgContent" rows="3">${escapeHtml(t('def.noteContent'))}</textarea>
     `,
-  weather: `<label>Miasto</label><input type="text" id="cfgCity" value="Jasło">`,
-  stock: `
-      <label>Symbol</label>
+  weather: () => `<label>${t('cfg.city')}</label><input type="text" id="cfgCity" value="${escapeHtml(t('def.city'))}">`,
+  stock: () => `
+      <label>${t('cfg.symbol')}</label>
       <input type="text" id="cfgSymbol" value="AAPL">
-      <p class="field-hint">np. AAPL, NVDA · spółki z GPW z końcówką .WA (PKN.WA, CDR.WA)</p>
-      <label>Zakres wykresu</label>
-      <select id="cfgRange">
-        <option value="1d" selected>1 dzień</option>
-        <option value="5d">5 dni</option>
-        <option value="1mo">1 miesiąc</option>
-        <option value="6mo">6 miesięcy</option>
-        <option value="1y">1 rok</option>
-      </select>
+      <p class="field-hint">${t('cfg.stockHint')}</p>
+      <label>${t('cfg.range')}</label>
+      <select id="cfgRange">${rangeOptions(['1d', '5d', '1mo', '6mo', '1y'].map(r => [r, t('range.' + r)]), '1d')}</select>
     `,
-  todo: `<label>Tytuł</label><input type="text" id="cfgTitle" value="Zadania">`,
-  music: `<p class="config-hint">Pokazuje to, co aktualnie gra (Spotify, YouTube w przeglądarce itp.) i pozwala sterować odtwarzaniem.</p>`
+  todo: () => `<label>${t('cfg.title')}</label><input type="text" id="cfgTitle" value="${escapeHtml(t('def.todoTitle'))}">`,
+  music: () => `<p class="config-hint">${t('cfg.musicHint')}</p>`
 };
 
 function renderConfigForm(type) {
   widgetConfig.classList.remove('hidden');
-  widgetConfig.innerHTML = CONFIG_FORMS[type] ||
-    `<p class="config-hint">Ten widget nie wymaga ustawień.</p>`;
+  const form = CONFIG_FORMS[type];
+  widgetConfig.innerHTML = form ? form() : `<p class="config-hint">${t('modal.noConfig')}</p>`;
 }
 
 function addWidget() {
@@ -214,15 +207,15 @@ function addWidget() {
     widget.vs = val('cfgVs')?.trim().toLowerCase() || 'usd';
     widget.range = val('cfgRange') || '24';
   } else if (selectedType === 'note') {
-    widget.title = val('cfgTitle') || 'Notatka';
+    widget.title = val('cfgTitle') || t('def.noteTitle');
     widget.content = val('cfgContent') || '';
   } else if (selectedType === 'weather') {
-    widget.city = val('cfgCity') || 'Jasło';
+    widget.city = val('cfgCity') || t('def.city');
   } else if (selectedType === 'stock') {
     widget.symbol = val('cfgSymbol')?.trim().toUpperCase() || 'AAPL';
     widget.range = val('cfgRange') || '1d';
   } else if (selectedType === 'todo') {
-    widget.title = val('cfgTitle')?.trim() || 'Zadania';
+    widget.title = val('cfgTitle')?.trim() || t('def.todoTitle');
     widget.items = [];
   }
 
@@ -254,10 +247,10 @@ function renderWidget(widget) {
     <div class="widget-header">
       <span class="widget-title">${escapeHtml(getWidgetTitle(widget))}</span>
       <div class="widget-controls">
-        <button class="widget-close" title="Usuń widget">${UI_ICONS.close}</button>
+        <button class="widget-close" title="${t('w.remove')}">${UI_ICONS.close}</button>
       </div>
     </div>
-    <div class="widget-body" id="body-${widget.id}"><span class="loading">Ładowanie…</span></div>
+    <div class="widget-body" id="body-${widget.id}"><span class="loading">${t('w.loading')}</span></div>
   `;
   el.querySelector('.widget-close').addEventListener('click', (e) => {
     e.stopPropagation();
@@ -272,14 +265,14 @@ function renderWidget(widget) {
 
 function getWidgetTitle(w) {
   switch (w.type) {
-    case 'crypto': return `Krypto • ${w.symbol}`;
-    case 'note': return w.title || 'Notatka';
-    case 'clock': return 'Zegar';
-    case 'weather': return `Pogoda • ${w.city || ''}`;
+    case 'crypto': return t('title.crypto', { s: w.symbol });
+    case 'note': return w.title || t('def.noteTitle');
+    case 'clock': return t('title.clock');
+    case 'weather': return t('title.weather', { s: w.city || '' });
     case 'temps': return 'CPU / GPU / RAM';
-    case 'stock': return `Akcje • ${w.symbol}`;
-    case 'todo': return w.title || 'Zadania';
-    case 'music': return 'Muzyka';
+    case 'stock': return t('title.stock', { s: w.symbol });
+    case 'todo': return w.title || t('def.todoTitle');
+    case 'music': return t('title.music');
     default: return w.type;
   }
 }
@@ -322,21 +315,21 @@ async function loadWidgetData(widget, view) {
         break;
       case 'weather': {
         const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(widget.city)}&count=1`).then(r => r.json());
-        if (!geo.results?.[0]) throw new Error('Nie znaleziono');
+        if (!geo.results?.[0]) throw new Error(t('wx.notFound'));
         const { latitude, longitude } = geo.results[0];
         const weather = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,weather_code&timezone=auto`).then(r => r.json());
         const c = weather.current;
         // miasto jest juz w tytule karty - pod temperatura opis pogody i temperatura odczuwalna
-        const desc = [weatherText(c.weather_code), c.apparent_temperature != null ? `odczuwalna ${tempFmt.format(c.apparent_temperature)}°` : null]
+        const desc = [weatherText(c.weather_code), c.apparent_temperature != null ? t('wx.feels', { t: tempFmt.format(c.apparent_temperature) }) : null]
           .filter(Boolean).join(' · ');
         body.innerHTML = `<div>${tempFmt.format(c.temperature_2m)}°C</div><div class="widget-sub">${escapeHtml(desc || widget.city)}</div>`;
         break;
       }
       default:
-        body.innerHTML = `<div class="widget-sub">Ten typ widgetu nie jest jeszcze dostępny.</div>`;
+        body.innerHTML = `<div class="widget-sub">${t('w.unavailable')}</div>`;
     }
   } catch (err) {
-    body.innerHTML = `<div class="error-text">Błąd: ${escapeHtml(err.message)}</div>`;
+    body.innerHTML = `<div class="error-text">${escapeHtml(t('w.error', { msg: err.message }))}</div>`;
   }
 }
 
@@ -344,10 +337,10 @@ async function loadWidgetData(widget, view) {
 
 // load(widget) -> { price, change, currency, name?, prices: { t, p } (lub Promise) }
 // timeFmt(range) -> formatter podpisu czasu punktu pod kursorem
-const fmtHM = new Intl.DateTimeFormat('pl-PL', { hour: '2-digit', minute: '2-digit' });
-const fmtDayHM = new Intl.DateTimeFormat('pl-PL', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
-const fmtDate = new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short' });
-const fmtMonthYear = new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' });
+const fmtHM = new Intl.DateTimeFormat(I18N.locale, { hour: HOUR, minute: '2-digit' });
+const fmtDayHM = new Intl.DateTimeFormat(I18N.locale, { weekday: 'short', hour: HOUR, minute: '2-digit' });
+const fmtDate = new Intl.DateTimeFormat(I18N.locale, { day: 'numeric', month: 'short' });
+const fmtMonthYear = new Intl.DateTimeFormat(I18N.locale, { day: 'numeric', month: 'short', year: 'numeric' });
 
 const MARKETS = {
   crypto: {
@@ -362,31 +355,24 @@ const MARKETS = {
     }
   },
   stock: {
-    ranges: [['1d', '1D'], ['5d', '5D'], ['1mo', '1M'], ['6mo', '6M'], ['1y', '1R']],
-    changeLabel: '(dziś)',
+    ranges: [['1d', '1D'], ['5d', '5D'], ['1mo', '1M'], ['6mo', '6M'], ['1y', t('range.short.1y')]],
+    changeLabel: t('mk.today'),
     timeFmt: (range) => range === '1d' ? fmtHM : range === '5d' ? fmtDayHM : range === '1y' ? fmtMonthYear : fmtDate,
     load: (w) => ipcRenderer.invoke('stock-data', { symbol: w.symbol, range: w.range })
   }
 };
 
 // ---------- pogoda: opis kodu WMO (Open-Meteo) ----------
-const tempFmt = new Intl.NumberFormat('pl-PL', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const tempFmt = new Intl.NumberFormat(I18N.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 function weatherText(code) {
   if (code == null) return null;
-  if (code === 0) return 'Bezchmurnie';
-  if (code <= 2) return 'Częściowe zachmurzenie';
-  if (code === 3) return 'Pochmurno';
-  if (code <= 48) return 'Mgła';
-  if (code <= 57) return 'Mżawka';
-  if (code <= 67) return 'Deszcz';
-  if (code <= 77) return 'Śnieg';
-  if (code <= 82) return 'Przelotny deszcz';
-  if (code <= 86) return 'Przelotny śnieg';
-  return 'Burza';
+  // progi kodow WMO -> klucz opisu (wx.0, wx.2, ...)
+  for (const max of [0, 2, 3, 48, 57, 67, 77, 82, 86]) if (code <= max) return t('wx.' + max);
+  return t('wx.99');
 }
 
-// zmiana procentowa po polsku (przecinek, prawdziwy znak minus): "+0,54%", "−1,90%"
-const pctFmt = new Intl.NumberFormat('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// zmiana procentowa w formacie jezyka (pl: "+0,54%", en: "+0.54%"), z prawdziwym znakiem minus
+const pctFmt = new Intl.NumberFormat(I18N.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const changeText = (pct) => pct != null ? `${pct >= 0 ? '+' : '−'}${pctFmt.format(Math.abs(pct))}%` : '–';
 
 // Naglowek widgetu: aktualne dane (live) albo punkt wykresu pod kursorem (hover)
@@ -418,8 +404,8 @@ function buildMarket(widget, view) {
     <div></div>
     <div class="widget-sub"></div>
     <div class="market-row">
-      <span class="market-label">Wykres</span>
-      <select class="range-select" title="Zakres wykresu">${options}</select>
+      <span class="market-label">${t('mk.chart')}</span>
+      <select class="range-select" title="${t('cfg.range')}">${options}</select>
     </div>
     <div class="chart-container"><canvas id="chart-${widget.id}"></canvas></div>
   `;
@@ -442,7 +428,7 @@ async function refreshMarket(widget, initial) {
     if (!view.refs) buildMarket(widget, view);
     // gielda zamknieta (wieczor, weekend, swieto): kurs i wykres stoja - mowimy to wprost
     const closed = d.marketOpen === false && d.lastTrade;
-    const label = closed ? `(zamknięte · ${fmtDayHM.format(new Date(d.lastTrade))})` : market.changeLabel;
+    const label = closed ? t('mk.closed', { when: fmtDayHM.format(new Date(d.lastTrade)) }) : market.changeLabel;
     view.live = {
       currency: d.currency,
       price: formatPrice(d.price, d.currency),
@@ -450,7 +436,7 @@ async function refreshMarket(widget, initial) {
       cls: 'widget-sub ' + (d.change >= 0 ? 'price-up' : 'price-down')
     };
     view.live.base = view.live.change;
-    setTitle(view.refs.price, [d.name, closed ? `Giełda zamknięta – ostatni kurs: ${fmtDayHM.format(new Date(d.lastTrade))}` : '']
+    setTitle(view.refs.price, [d.name, closed ? t('mk.closedTitle', { when: fmtDayHM.format(new Date(d.lastTrade)) }) : '']
       .filter(Boolean).join('\n'));
     setTitle(view.refs.change, '');
     if (view.hoverIdx == null) showLive(view); // nie przerywaj ogladania wykresu odswiezeniem
@@ -459,8 +445,8 @@ async function refreshMarket(widget, initial) {
     if (initial) throw e;
     // odswiezenie sie nie udalo - zostaja poprzednie dane, ale z widoczna informacja
     if (view.live && view.refs) {
-      view.live.change = `${view.live.base} · brak odświeżenia`;
-      setTitle(view.refs.change, `Nie udało się odświeżyć: ${e.message}`);
+      view.live.change = `${view.live.base} · ${t('mk.stale')}`;
+      setTitle(view.refs.change, t('mk.staleTitle', { msg: e.message }));
       if (view.hoverIdx == null) showLive(view);
     }
   }
@@ -544,12 +530,12 @@ function buildTodo(widget, view) {
   view.body.innerHTML = `
     <ul class="todo-list"></ul>
     <div class="todo-add">
-      <input type="text" class="todo-input" placeholder="Dodaj zadanie…" maxlength="200" spellcheck="false">
-      <button class="btn-mini todo-add-btn" title="Dodaj">${UI_ICONS.plus}</button>
+      <input type="text" class="todo-input" placeholder="${t('todo.placeholder')}" maxlength="200" spellcheck="false">
+      <button class="btn-mini todo-add-btn" title="${t('todo.add')}">${UI_ICONS.plus}</button>
     </div>
     <div class="todo-foot">
       <span class="widget-sub todo-count"></span>
-      <button class="todo-clear hidden">Usuń zrobione</button>
+      <button class="todo-clear hidden">${t('todo.clear')}</button>
     </div>
   `;
   const q = s => view.body.querySelector(s);
@@ -616,13 +602,13 @@ function renderTodo(widget, view) {
   const { list, count, clear } = view.refs;
   list.innerHTML = widget.items.map(i => `
     <li class="todo-item${i.done ? ' done' : ''}" data-id="${i.id}">
-      <button class="todo-check" title="${i.done ? 'Oznacz jako niezrobione' : 'Oznacz jako zrobione'}"></button>
-      <span class="todo-text" title="Kliknij dwukrotnie, aby edytować">${escapeHtml(i.text)}</span>
-      <button class="todo-del" title="Usuń">${UI_ICONS.close}</button>
+      <button class="todo-check" title="${i.done ? t('todo.markUndone') : t('todo.markDone')}"></button>
+      <span class="todo-text" title="${t('todo.editHint')}">${escapeHtml(i.text)}</span>
+      <button class="todo-del" title="${t('todo.delete')}">${UI_ICONS.close}</button>
     </li>`).join('');
   const done = widget.items.filter(i => i.done).length;
   const total = widget.items.length;
-  count.textContent = total ? `${done} / ${total} zrobione` : 'Brak zadań';
+  count.textContent = total ? t('todo.count', { done, total }) : t('todo.empty');
   clear.classList.toggle('hidden', done === 0);
 }
 
@@ -651,7 +637,7 @@ function buildMusic(view) {
     <div class="music">
       <div class="music-art"><img alt="" class="hidden"><span class="music-art-ph">${UI_ICONS.note}</span></div>
       <div class="music-info">
-        <div class="music-title">Nic nie gra</div>
+        <div class="music-title">${t('music.nothing')}</div>
         <div class="widget-sub music-artist"></div>
         <div class="music-app"></div>
       </div>
@@ -661,9 +647,9 @@ function buildMusic(view) {
       <div class="music-times"><span></span><span></span></div>
     </div>
     <div class="music-controls">
-      <button data-cmd="prev" title="Poprzedni">${ICONS.prev}</button>
-      <button data-cmd="toggle" class="music-play" title="Odtwórz / pauza">${ICONS.play}</button>
-      <button data-cmd="next" title="Następny">${ICONS.next}</button>
+      <button data-cmd="prev" title="${t('music.prev')}">${ICONS.prev}</button>
+      <button data-cmd="toggle" class="music-play" title="${t('music.toggle')}">${ICONS.play}</button>
+      <button data-cmd="next" title="${t('music.next')}">${ICONS.next}</button>
     </div>
   `;
   const q = s => view.body.querySelector(s);
@@ -861,7 +847,7 @@ function drawWave(view, m, now) {
 function renderMediaInto(view, m) {
   const r = view.refs;
   const has = !!m.has;
-  setText(r.title, has ? (m.title || 'Bez tytułu') : (m.error ? 'Sterowanie muzyką niedostępne' : 'Nic nie gra'));
+  setText(r.title, has ? (m.title || t('music.untitled')) : (m.error ? t('music.unavailable') : t('music.nothing')));
   setTitle(r.title, has ? [m.title, m.artist, m.album].filter(Boolean).join(' — ') : (m.error || ''));
   setText(r.artist, has ? (m.artist || '') : '');
   setText(r.app, has && m.app ? m.app : '');
@@ -887,8 +873,8 @@ function renderMediaInto(view, m) {
 
 // ---------- zegar ----------
 
-const timeFmt = new Intl.DateTimeFormat('pl-PL', { hour: '2-digit', minute: '2-digit' });
-const dateFmt = new Intl.DateTimeFormat('pl-PL', { weekday: 'short', day: 'numeric', month: 'short' });
+const timeFmt = new Intl.DateTimeFormat(I18N.locale, { hour: HOUR, minute: '2-digit' });
+const dateFmt = new Intl.DateTimeFormat(I18N.locale, { weekday: 'short', day: 'numeric', month: 'short' });
 
 function updateClock(view, now) {
   if (!view.refs) return;
@@ -910,11 +896,7 @@ let elevating = false;
 let lastElevateError = null;
 let autoElevateTried = false;
 
-const DRIVER_MESSAGES = {
-  blocked: 'Sterownik WinRing0 został zablokowany (Malwarebytes / Windows). Szczegóły: ohm/ohmhelper/driver.log',
-  'other-instance': 'Sterownik obsługuje już helper administratora – odczyt CPU pojawi się za chwilę.',
-  'dir-not-writable': 'Brak zapisu do folderu ohm/ohmhelper – sterownik nie ma gdzie się wypakować.'
-};
+const DRIVER_MESSAGES = new Set(['blocked', 'other-instance', 'dir-not-writable']); // teksty: drv.*
 
 function getAutoElevate() {
   try { return localStorage.getItem(AUTO_ELEVATE_KEY) === '1'; } catch { return false; }
@@ -927,7 +909,7 @@ function buildTemps(widget, view) {
   view.body.innerHTML = `
         <div class="temps-grid">
           <div class="temp-block">
-            <div class="temp-label" id="cpuname-${widget.id}">Procesor</div>
+            <div class="temp-label" id="cpuname-${widget.id}">${t('tp.cpu')}</div>
             <div class="temp-value temp-unknown" id="cpu-${widget.id}">--°C</div>
             <div class="temp-load" id="cpuload-${widget.id}"></div>
             <div class="temp-top" data-r="cpuTop"></div>
@@ -950,8 +932,8 @@ function buildTemps(widget, view) {
         </div>
         <div class="temp-status hidden" id="tstatus-${widget.id}">
           <span class="temp-status-text"></span>
-          <button class="btn-mini temp-elevate">Odczyt CPU (admin)</button>
-          <label class="temp-auto"><input type="checkbox" class="temp-auto-cb"> zawsze przy starcie</label>
+          <button class="btn-mini temp-elevate">${t('tp.elevate')}</button>
+          <label class="temp-auto"><input type="checkbox" class="temp-auto-cb"> ${t('tp.auto')}</label>
         </div>
       `;
   const q = s => view.body.querySelector(s);
@@ -975,15 +957,15 @@ async function refreshTemps() {
 async function elevateSensors() {
   if (elevating) return;
   elevating = true;
-  forEachTempsView(v => { v.refs.elevate.disabled = true; v.refs.elevate.textContent = 'Uruchamianie…'; });
+  forEachTempsView(v => { v.refs.elevate.disabled = true; v.refs.elevate.textContent = t('tp.elevating'); });
   try {
     const r = await ipcRenderer.invoke('elevate-sensors');
-    lastElevateError = r.ok ? null : (r.error || 'nieznany błąd');
+    lastElevateError = r.ok ? null : (r.error || t('tp.unknownError'));
   } catch (e) {
     lastElevateError = e.message;
   } finally {
     elevating = false;
-    forEachTempsView(v => { v.refs.elevate.disabled = false; v.refs.elevate.textContent = 'Odczyt CPU (admin)'; });
+    forEachTempsView(v => { v.refs.elevate.disabled = false; v.refs.elevate.textContent = t('tp.elevate'); });
     refreshTemps();
   }
 }
@@ -1019,22 +1001,22 @@ function shortName(name, fallback) {
 }
 
 const fmtTemp = t => t != null ? `${Math.round(t)}°C` : '--°C';
-const fmtLoad = l => l != null ? `obciążenie ${Math.round(l)}%` : '';
-const gbFmt = new Intl.NumberFormat('pl-PL', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fmtLoad = l => l != null ? t('tp.load', { v: Math.round(l) }) : '';
+const gbFmt = new Intl.NumberFormat(I18N.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const fmtGB = mb => gbFmt.format(mb / 1024);
 
 // "▲ nazwa 12%" - najbardziej obciazajacy proces; title z pelna nazwa (tekst moze byc uciety)
 function setTop(el, name, value) {
   const text = name ? `▲ ${name} ${value}` : '';
   setText(el, text);
-  setTitle(el, name ? `Najwięcej zużywa: ${name} (${value})` : '');
+  setTitle(el, name ? t('tp.top', { name, value }) : '');
 }
 
 function renderTempsInto(view, t) {
   const r = view.refs;
   setText(r.cpu, fmtTemp(t.cpu)); setClass(r.cpu, tempClass(t.cpu));
   setText(r.gpu, fmtTemp(t.gpu)); setClass(r.gpu, tempClass(t.gpu));
-  setText(r.cpuName, shortName(t.cpuName, 'Procesor')); setTitle(r.cpuName, t.cpuName || '');
+  setText(r.cpuName, shortName(t.cpuName, I18N.t('tp.cpu'))); setTitle(r.cpuName, t.cpuName || '');
   setText(r.gpuName, shortName(t.gpuName, 'GPU')); setTitle(r.gpuName, t.gpuName || '');
   setText(r.cpuLoad, fmtLoad(t.cpuLoad));
   setText(r.gpuLoad, fmtLoad(t.gpuLoad));
@@ -1055,11 +1037,9 @@ function renderTempsInto(view, t) {
   let msg = null, buttons = false;
   if (t.needAdmin) {
     buttons = true;
-    msg = lastElevateError
-      ? `Nie udało się: ${lastElevateError}`
-      : 'Temperatura CPU wymaga uprawnień administratora (sterownik WinRing0).';
+    msg = lastElevateError ? I18N.t('tp.failed', { msg: lastElevateError }) : I18N.t('tp.needAdmin');
   } else if (t.cpu == null && t.driver && t.driver !== 'ok' && t.driver !== 'no-admin') {
-    msg = DRIVER_MESSAGES[t.driver] || `Sterownik: ${t.driver}`;
+    msg = DRIVER_MESSAGES.has(t.driver) ? I18N.t('drv.' + t.driver) : I18N.t('tp.driver', { v: t.driver });
   } else if (t.error && t.cpu == null && t.gpu == null) {
     msg = t.error;
   }
@@ -1078,10 +1058,8 @@ function renderTempsInto(view, t) {
 
 const THEME_KEY = 'widget-theme-accent';
 const DEFAULT_ACCENT = '#5eead4';
-const THEME_PRESETS = [
-  ['Turkus', '#5eead4'], ['Błękit', '#60a5fa'], ['Indygo', '#818cf8'], ['Fiolet', '#c084fc'],
-  ['Róż', '#f472b6'], ['Koral', '#fb7185'], ['Pomarańcz', '#fb923c'], ['Złoto', '#facc15'], ['Srebro', '#cbd5e1'], ['Purpura', '#6a1a87']
-];
+const THEME_PRESETS = ['#5eead4', '#60a5fa', '#818cf8', '#c084fc', '#f472b6', '#fb7185', '#fb923c', '#facc15', '#cbd5e1', '#6a1a87']
+  .map((color, i) => [t('theme.presets')[i], color]);
 
 // biezacy motyw (uzywany przez wykresy i pasek muzyki)
 // chosen - wybrany kolor; accent - wariant do linii/tekstu (przy ciemnych kolorach rozjasniony)
@@ -1245,6 +1223,16 @@ function setupThemePicker() {
   range.max = String(Math.round((1 - ALPHA_MIN) * 100));
   range.addEventListener('input', () => showAlpha(applyAlpha(1 - range.value / 100)));
   range.addEventListener('change', () => saveAlpha(applyAlpha(1 - range.value / 100)));
+  // jezyk: zapisuje go proces glowny (config.json) i przeladowuje okno z nowymi tekstami
+  const langSwitch = $('langSwitch');
+  langSwitch.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.lang === I18N.lang));
+  langSwitch.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-lang]');
+    if (!b || b.dataset.lang === I18N.lang) return;
+    if (saveTimer) saveWidgets(); // niezapisana notatka
+    ipcRenderer.send('set-lang', b.dataset.lang);
+  });
+
   pop.addEventListener('click', (e) => e.stopPropagation());
   document.addEventListener('click', close);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
@@ -1264,11 +1252,11 @@ function formatPrice(price, vs) {
   const key = cur + (n < 1 ? ':6' : ':2');
   let f = priceFormats.get(key);
   if (f === undefined) {
-    try { f = new Intl.NumberFormat('pl-PL', { style: 'currency', currency: cur, maximumFractionDigits: n < 1 ? 6 : 2 }); }
+    try { f = new Intl.NumberFormat(I18N.locale, { style: 'currency', currency: cur, maximumFractionDigits: n < 1 ? 6 : 2 }); }
     catch { f = null; } // nieznana waluta
     priceFormats.set(key, f);
   }
-  return f ? f.format(n) : `${n.toLocaleString('pl-PL', { maximumFractionDigits: 6 })} ${(vs || '').toUpperCase()}`;
+  return f ? f.format(n) : `${n.toLocaleString(I18N.locale, { maximumFractionDigits: 6 })} ${(vs || '').toUpperCase()}`;
 }
 
 const HTML_ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };

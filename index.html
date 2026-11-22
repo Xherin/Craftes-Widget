@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <!-- Polityka bezpieczenstwa tresci: skrypty, style i fonty tylko z folderu aplikacji,
@@ -24,41 +24,48 @@
       </svg>Craftes
     </span>
     <div class="drag-actions">
-      <button id="themeBtn" class="icon-btn" title="Kolor motywu">
+      <button id="themeBtn" class="icon-btn" title="Appearance and language" data-i18n-title="bar.appearance">
         <svg viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7h2a4.6 4.6 0 0 0 4.6-4.6C21 6.8 17 3.5 12 3.5z"/><circle cx="7.5" cy="11.5" r="1.1"/><circle cx="10" cy="7.5" r="1.1"/><circle cx="14.5" cy="7.5" r="1.1"/></svg>
       </button>
-      <button id="refreshBtn" class="icon-btn" title="Odśwież wszystko">
+      <button id="refreshBtn" class="icon-btn" title="Refresh all" data-i18n-title="bar.refresh">
         <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
       </button>
-      <button id="lockBtn" class="icon-btn" title="Zablokuj układ"></button>
-      <button id="addWidgetBtn" class="icon-btn" title="Dodaj widget">
+      <button id="lockBtn" class="icon-btn"></button>
+      <button id="addWidgetBtn" class="icon-btn" title="Add widget" data-i18n-title="bar.add">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <button id="closeBtn" class="icon-btn" title="Schowaj do zasobnika">
+      <button id="closeBtn" class="icon-btn" title="Hide to tray" data-i18n-title="bar.hide">
         <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
   </div>
 
   <div id="themePop" class="theme-pop hidden">
-    <div class="theme-pop-title">Kolor motywu</div>
+    <div class="theme-pop-title" data-i18n="theme.title">Theme color</div>
     <div id="themeSwatches" class="theme-swatches"></div>
     <div class="theme-row">
       <label class="theme-custom">
         <input type="color" id="themeCustom" value="#5eead4">
-        <span>Własny kolor</span>
+        <span data-i18n="theme.custom">Custom color</span>
       </label>
     </div>
     <div class="theme-alpha">
       <div class="theme-alpha-head">
-        <span>Przezroczystość</span>
+        <span data-i18n="theme.alpha">Transparency</span>
         <span id="alphaValue" class="theme-alpha-value">38%</span>
       </div>
-      <input type="range" id="alphaRange" class="theme-range" step="1" value="38" aria-label="Przezroczystość kart">
+      <input type="range" id="alphaRange" class="theme-range" step="1" value="38" aria-label="Card transparency" data-i18n-aria="theme.alphaAria">
+    </div>
+    <div class="theme-lang">
+      <span class="theme-lang-label" data-i18n="theme.lang">Language</span>
+      <div id="langSwitch" class="lang-switch" role="group">
+        <button data-lang="en" lang="en">English</button>
+        <button data-lang="pl" lang="pl">Polski</button>
+      </div>
     </div>
     <div class="theme-foot">
-      <p class="theme-note">Kolory temperatur, RAM i zmian kursów zostają bez zmian.</p>
-      <button id="themeReset" class="theme-reset" title="Przywróć domyślny kolor i przezroczystość">Domyślne</button>
+      <p class="theme-note" data-i18n="theme.note">Temperature, RAM and price change colors stay the same.</p>
+      <button id="themeReset" class="theme-reset" title="Restore the default color and transparency" data-i18n-title="theme.resetTitle" data-i18n="theme.reset">Default</button>
     </div>
   </div>
 
@@ -66,45 +73,46 @@
 
   <div id="modal" class="modal hidden">
     <div class="modal-content">
-      <h2>Dodaj widget</h2>
-      <p class="modal-sub">Wybierz, co ma się pojawić na panelu.</p>
+      <h2 data-i18n="modal.title">Add widget</h2>
+      <p class="modal-sub" data-i18n="modal.sub">Choose what appears on the panel.</p>
       <div class="widget-types">
         <button class="widget-type-btn" data-type="crypto">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M10 8v8m0-8h3a2 2 0 0 1 0 4h-3m0 0h3.5a2 2 0 0 1 0 4H10"/></svg>Krypto
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M10 8v8m0-8h3a2 2 0 0 1 0 4h-3m0 0h3.5a2 2 0 0 1 0 4H10"/></svg><span data-i18n="type.crypto">Crypto</span>
         </button>
         <button class="widget-type-btn" data-type="stock">
-          <svg viewBox="0 0 24 24"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg>Akcje
+          <svg viewBox="0 0 24 24"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg><span data-i18n="type.stock">Stocks</span>
         </button>
         <button class="widget-type-btn" data-type="temps">
-          <svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v3M14 3v3M10 18v3M14 18v3M3 10h3M3 14h3M18 10h3M18 14h3"/></svg>CPU / GPU / RAM
+          <svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v3M14 3v3M10 18v3M14 18v3M3 10h3M3 14h3M18 10h3M18 14h3"/></svg><span data-i18n="type.temps">CPU / GPU / RAM</span>
         </button>
         <button class="widget-type-btn" data-type="music">
-          <svg viewBox="0 0 24 24"><path d="M9 17V6l10-2v11"/><circle cx="6.5" cy="17" r="2.5"/><circle cx="16.5" cy="15" r="2.5"/></svg>Muzyka
+          <svg viewBox="0 0 24 24"><path d="M9 17V6l10-2v11"/><circle cx="6.5" cy="17" r="2.5"/><circle cx="16.5" cy="15" r="2.5"/></svg><span data-i18n="type.music">Music</span>
         </button>
         <button class="widget-type-btn" data-type="todo">
-          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Zadania
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg><span data-i18n="type.todo">Tasks</span>
         </button>
         <button class="widget-type-btn" data-type="note">
-          <svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 8.5h6M9 12h6M9 15.5h3.5"/></svg>Notatka
+          <svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 8.5h6M9 12h6M9 15.5h3.5"/></svg><span data-i18n="type.note">Note</span>
         </button>
         <button class="widget-type-btn" data-type="clock">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Zegar
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span data-i18n="type.clock">Clock</span>
         </button>
         <button class="widget-type-btn" data-type="weather">
-          <svg viewBox="0 0 24 24"><path d="M7.5 18.5a4 4 0 0 1-.4-7.98 5.5 5.5 0 0 1 10.6 1.5 3.25 3.25 0 0 1-.2 6.48z"/></svg>Pogoda
+          <svg viewBox="0 0 24 24"><path d="M7.5 18.5a4 4 0 0 1-.4-7.98 5.5 5.5 0 0 1 10.6 1.5 3.25 3.25 0 0 1-.2 6.48z"/></svg><span data-i18n="type.weather">Weather</span>
         </button>
-        <button class="widget-type-btn" data-type="ai" disabled title="Ten widget jeszcze powstaje">
-          <svg viewBox="0 0 24 24"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z"/><path d="M18 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg>AI / Oferty<span class="soon">wkrótce</span>
+        <button class="widget-type-btn" data-type="ai" disabled title="This widget is still in the works" data-i18n-title="modal.soonTitle">
+          <svg viewBox="0 0 24 24"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z"/><path d="M18 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></svg><span data-i18n="type.ai">AI / Deals</span><span class="soon" data-i18n="modal.soon">soon</span>
         </button>
       </div>
       <div id="widgetConfig" class="widget-config hidden"></div>
       <div class="modal-actions">
-        <button id="cancelAdd" class="btn-ghost">Anuluj</button>
-        <button id="confirmAdd" class="btn-primary" disabled>Dodaj</button>
+        <button id="cancelAdd" class="btn-ghost" data-i18n="modal.cancel">Cancel</button>
+        <button id="confirmAdd" class="btn-primary" disabled data-i18n="modal.add">Add</button>
       </div>
     </div>
   </div>
 
+  <script defer src="i18n.js"></script>
   <script defer src="app.js"></script>
 </body>
 </html>

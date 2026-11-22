@@ -23,6 +23,7 @@
       "main.js",
       "index.html",
       "app.js",
+      "i18n.js",
       "styles.css",
       "package.json",
       "assets/**",

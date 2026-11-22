@@ -193,6 +193,23 @@ svg { display: block; }
   background: var(--accent-fg);
   box-shadow: 0 0 0 3px rgba(17, 19, 27, 0.95), 0 0 10px rgba(var(--accent-rgb), 0.5);
 }
+/* wybor jezyka: dwa przyciski w jednej ramce */
+.theme-lang { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
+.theme-lang-label { font-size: var(--fs-sm); font-weight: 500; color: var(--text-2); }
+.lang-switch { display: flex; padding: 2px; border: 1px solid var(--field-border); border-radius: var(--r-sm); }
+.lang-switch button {
+  background: none;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 9px;
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+}
+.lang-switch button:hover { color: var(--text); background: var(--hover); }
+.lang-switch button.active { background: var(--accent); color: var(--on-accent); }
 .theme-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
 
 .drag-actions {
