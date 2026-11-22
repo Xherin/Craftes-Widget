@@ -218,7 +218,7 @@ function fetchJson(url) {
 
   const p = new Promise((resolve, reject) => {
     const request = net.request(url);
-    request.setHeader('User-Agent', 'WidgetDashboard/0.25');
+    request.setHeader('User-Agent', 'CraftesWidget/' + app.getVersion());
     const chunks = [];
     request.on('response', (res) => {
       res.on('data', c => chunks.push(c));

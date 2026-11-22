@@ -1,4 +1,4 @@
-// Widget Dashboard v0.25
+// Craftes Widget (wersja: package.json)
 const { ipcRenderer } = require('electron');
 
 const STORAGE_KEY = 'widget-dashboard-v11';

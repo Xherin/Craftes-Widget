@@ -1,4 +1,4 @@
-# Craftes Widget v0.25
+# Craftes Widget
 
 [English](README.md) · **Polski**
 

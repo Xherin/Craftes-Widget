@@ -1,6 +1,6 @@
 {
   "name": "widget-dashboard",
-  "version": "0.25.0",
+  "version": "0.25.5",
   "description": "Transparent widget dashboard",
   "main": "main.js",
   "scripts": {
@@ -32,7 +32,10 @@
       "!ohm/ohmhelper/*.sys",
       "!ohm/ohmhelper/*.log"
     ],
-    "electronLanguages": ["pl", "en-US"],
+    "electronLanguages": [
+      "pl",
+      "en-US"
+    ],
     "asarUnpack": [
       "ohm/**"
     ],
